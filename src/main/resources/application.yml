@@ -1,0 +1,45 @@
+spring:
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    url: ${SUPABASE_DB_URL:jdbc:postgresql://localhost:5432/sdvnews}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      initialization-fail-timeout: -1
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+supabase:
+  jwt-secret: ${SUPABASE_JWT_SECRET:dummy-secret-for-local-development-only-32c}
+
+rss:
+  feeds:
+    - https://feeds.feedburner.com/TechCrunch
+    - https://www.automotiveworld.com/feed/
+    - https://www.sae.org/rss/news.rss
+
+internal:
+  batch-secret: ${INTERNAL_BATCH_SECRET:dummy-batch-secret}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+server:
+  port: 8080
