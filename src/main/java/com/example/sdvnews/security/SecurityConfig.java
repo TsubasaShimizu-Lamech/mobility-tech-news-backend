@@ -28,6 +28,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // ヘルスチェックは認証不要
                 .requestMatchers("/actuator/health").permitAll()
+                // エラーエンドポイントは認証不要（例外発生時のフォワード先）
+                .requestMatchers("/error").permitAll()
                 // バッチエンドポイントはSecurityレベルでは許可し、Controller内でシークレット検証
                 .requestMatchers("/internal/**").permitAll()
                 // その他はJWT認証必須

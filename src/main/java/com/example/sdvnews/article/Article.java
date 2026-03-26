@@ -13,9 +13,9 @@ import java.util.List;
 public class Article {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
-    private String id;
+    private Long id;
 
     @Column(name = "url", nullable = false, unique = true, length = 2048)
     private String url;
@@ -48,7 +48,7 @@ public class Article {
         this.createdAt = OffsetDateTime.now();
     }
 
-    public String getId() { return id; }
+    public Long getId() { return id; }
     public String getUrl() { return url; }
     public String getTitle() { return title; }
     public String getSummary() { return summary; }
