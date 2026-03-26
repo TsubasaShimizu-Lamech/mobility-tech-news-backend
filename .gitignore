@@ -17,6 +17,9 @@ out/
 .env
 .env.local
 
+# Claude Code (local settings are machine-specific)
+.claude/settings.local.json
+
 # macOS
 .DS_Store
 
