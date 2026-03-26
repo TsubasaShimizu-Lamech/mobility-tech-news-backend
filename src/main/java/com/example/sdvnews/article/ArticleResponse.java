@@ -4,15 +4,16 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 public record ArticleResponse(
-        String id,
+        Long id,
         String url,
         String title,
         String summary,
         List<String> tags,
         OffsetDateTime publishedAt,
-        OffsetDateTime createdAt
+        OffsetDateTime createdAt,
+        boolean bookmarked
 ) {
-    static ArticleResponse from(Article article) {
+    public static ArticleResponse from(Article article, boolean bookmarked) {
         return new ArticleResponse(
                 article.getId(),
                 article.getUrl(),
@@ -20,7 +21,8 @@ public record ArticleResponse(
                 article.getSummary(),
                 article.getTags(),
                 article.getPublishedAt(),
-                article.getCreatedAt()
+                article.getCreatedAt(),
+                bookmarked
         );
     }
 }

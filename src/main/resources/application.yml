@@ -21,16 +21,19 @@ spring:
         format_sql: true
 
 supabase:
-  jwt-secret: ${SUPABASE_JWT_SECRET:dummy-secret-for-local-development-only-32c}
+  jwks-url: ${SUPABASE_JWKS_URL:https://kdchjmssfmwvprsnyzlw.supabase.co/auth/v1/.well-known/jwks.json}
 
 rss:
   feeds:
-    - https://feeds.feedburner.com/TechCrunch
-    - https://www.automotiveworld.com/feed/
-    - https://www.sae.org/rss/news.rss
+    - https://kuruma-news.jp/feed
+    - https://motor-fan.jp/feed/
+    - https://bestcarweb.jp/feed
+    - https://www.webcg.net/list/feed/rss
+    - https://rss.itmedia.co.jp/rss/2.0/monoist.xml
 
 internal:
   batch-secret: ${INTERNAL_BATCH_SECRET:dummy-batch-secret}
+  batch-secret-required: ${INTERNAL_BATCH_SECRET_REQUIRED:true}
 
 management:
   endpoints:
