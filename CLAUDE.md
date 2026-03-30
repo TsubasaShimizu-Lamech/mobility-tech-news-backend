@@ -1,4 +1,4 @@
-# SDV News Backend - Claude Code ルール
+# Mobility Tech News Backend - Claude Code ルール
 
 ## プロジェクト概要
 日本国内をメインとする自動車関連のニュースを収集・配信するSpring Bootバックエンド。
@@ -24,6 +24,38 @@ com.example.sdvnews
 - バッチエンドポイントは X-Internal-Secret ヘッダーで保護（Cloud Scheduler想定）
 - Virtual Threads 有効（spring.threads.virtual.enabled=true）
 - Gemini API連携（要約・タグ付け）はフェーズ2スコープ外
+
+## インフラ構成（GCP）
+
+| コンポーネント | 内容 |
+|---|---|
+| GCP プロジェクト | `mobility-tech-news` |
+| Cloud Run サービス | `mobility-tech-news-api`（asia-northeast1、非公開） |
+| API Gateway | `mobility-tech-news-gateway`（公開エンドポイント） |
+| 公開 URL | `https://mobility-tech-news-gateway-5rrv7j8s.an.gateway.dev` |
+| Artifact Registry | `asia-northeast1-docker.pkg.dev/mobility-tech-news/mobility-tech-news/api` |
+| Cloud Scheduler | `rss-batch`（6時間ごと `/internal/batch/fetch` を実行） |
+
+### デプロイ手順
+
+```bash
+# イメージビルド & プッシュ（linux/amd64 必須）
+IMAGE="asia-northeast1-docker.pkg.dev/mobility-tech-news/mobility-tech-news/api:latest"
+docker buildx build --platform linux/amd64 --tag $IMAGE --push .
+
+# Cloud Run デプロイ
+gcloud run deploy mobility-tech-news-api \
+  --image $IMAGE \
+  --region asia-northeast1 \
+  --project=mobility-tech-news
+```
+
+### 注意事項
+- Cloud Run は非公開設定。直接アクセス不可。API Gateway 経由のみ
+- API Gateway が `Authorization` ヘッダーを OIDC トークンで書き換えるため、クライアントの JWT は `X-Forwarded-Authorization` で受け取る（`JwtAuthenticationFilter` 対応済み）
+- Supabase DB 接続は Session Pooler 経由（`aws-1-ap-northeast-1.pooler.supabase.com:5432`）
+- HikariCP `maximum-pool-size=3`（max-instances=3 × 3接続 = 9接続、Supabase 無料枠15接続以内）
+- CORS 許可オリジン: `localhost:3000`、`mobility-tech-news.web.app`、`mobility-tech-news.firebaseapp.com`
 
 ## 環境変数
 | 変数名 | 用途 |

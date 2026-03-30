@@ -1,1 +1,1 @@
-rootProject.name = "sdv-news-backend"
+rootProject.name = "mobility-tech-news"

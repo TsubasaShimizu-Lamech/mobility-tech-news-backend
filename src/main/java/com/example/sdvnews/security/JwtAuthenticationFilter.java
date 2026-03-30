@@ -37,9 +37,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Optional<String> extractToken(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (StringUtils.hasText(header) && header.startsWith(BEARER_PREFIX)) {
-            return Optional.of(header.substring(BEARER_PREFIX.length()));
+        // API Gateway は Authorization を Cloud Run 認証用に書き換えるため、
+        // 元のクライアント JWT は X-Forwarded-Authorization に転送される
+        for (String headerName : new String[]{"X-Forwarded-Authorization", "Authorization"}) {
+            String header = request.getHeader(headerName);
+            if (StringUtils.hasText(header) && header.startsWith(BEARER_PREFIX)) {
+                return Optional.of(header.substring(BEARER_PREFIX.length()));
+            }
         }
         return Optional.empty();
     }

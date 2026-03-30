@@ -10,6 +10,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       initialization-fail-timeout: -1
+      maximum-pool-size: 3
 
   jpa:
     hibernate:
