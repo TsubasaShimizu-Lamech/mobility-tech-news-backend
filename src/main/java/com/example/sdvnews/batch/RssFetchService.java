@@ -64,8 +64,22 @@ public class RssFetchService {
 
             for (SyndEntry entry : feed.getEntries()) {
                 String url = resolveUrl(entry);
-                if (url == null || articleRepository.existsByUrl(url)) {
+                if (url == null) {
                     skipped++;
+                    continue;
+                }
+
+                String imageUrl = resolveImageUrl(entry);
+                var existing = articleRepository.findByUrl(url);
+                if (existing.isPresent()) {
+                    // imageUrlがnullの既存記事は更新
+                    if (existing.get().getImageUrl() == null && imageUrl != null) {
+                        existing.get().setImageUrl(imageUrl);
+                        articleRepository.save(existing.get());
+                        saved++;
+                    } else {
+                        skipped++;
+                    }
                     continue;
                 }
 
@@ -74,7 +88,7 @@ public class RssFetchService {
                         entry.getTitle() != null ? entry.getTitle().trim() : "(no title)",
                         null,        // summary: フェーズ2でGeminiが設定
                         List.of(),   // tags: フェーズ2でGeminiが設定
-                        resolveImageUrl(entry),
+                        imageUrl,
                         toOffsetDateTime(entry.getPublishedDate())
                 );
                 articleRepository.save(article);
@@ -109,6 +123,13 @@ public class RssFetchService {
                     return enc.getUrl();
                 }
             }
+        }
+        // 3. description内の<img src="...">（多くの日本メディアはここに画像を埋め込む）
+        if (entry.getDescription() != null && entry.getDescription().getValue() != null) {
+            java.util.regex.Matcher m = java.util.regex.Pattern
+                    .compile("<img[^>]+src=[\"']([^\"']+)[\"']")
+                    .matcher(entry.getDescription().getValue());
+            if (m.find()) return m.group(1);
         }
         return null;
     }

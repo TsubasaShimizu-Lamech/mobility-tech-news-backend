@@ -8,7 +8,7 @@
 - Gradle (Kotlin DSL)
 - Supabase (PostgreSQL)
 - JJWT 0.12.x（JWT検証）
-- Rome（RSSパース）
+- Rome 2.1.0 + rome-modules 2.1.0（RSSパース・media:thumbnail対応）
 
 ## パッケージ構成
 ```
@@ -39,9 +39,9 @@ com.example.sdvnews
 ### デプロイ手順
 
 ```bash
-# イメージビルド & プッシュ（linux/amd64 必須）
+# イメージビルド & プッシュ（linux/amd64 必須、--provenance=false でシングルアーキテクチャmanifest生成）
 IMAGE="asia-northeast1-docker.pkg.dev/mobility-tech-news/mobility-tech-news/api:latest"
-docker buildx build --platform linux/amd64 --tag $IMAGE --push .
+docker buildx build --platform linux/amd64 --provenance=false --tag $IMAGE --push .
 
 # Cloud Run デプロイ
 gcloud run deploy mobility-tech-news-api \
@@ -56,6 +56,11 @@ gcloud run deploy mobility-tech-news-api \
 - Supabase DB 接続は Session Pooler 経由（`aws-1-ap-northeast-1.pooler.supabase.com:5432`）
 - HikariCP `maximum-pool-size=3`（max-instances=3 × 3接続 = 9接続、Supabase 無料枠15接続以内）
 - CORS 許可オリジン: `localhost:3000`、`mobility-tech-news.web.app`、`mobility-tech-news.firebaseapp.com`
+- Docker buildx は `--provenance=false` を必ず付けること。省略するとマルチアーキテクチャ manifest になり Cloud Run で `exec format error` が発生する
+- **DBマイグレーション**: Flyway は未導入。スキーマ変更は Supabase の psql CLI で直接実行すること
+  ```bash
+  psql "postgresql://postgres.kdchjmssfmwvprsnyzlw:[PASSWORD]@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres"
+  ```
 
 ## 環境変数
 | 変数名 | 用途 |
@@ -77,7 +82,7 @@ gcloud run deploy mobility-tech-news-api \
 
 クエリパラメータ：`page`（デフォルト0）、`size`（デフォルト20）
 
-レスポンス（`ArticleResponse`）：`id`, `url`, `title`, `summary`, `tags`, `publishedAt`, `createdAt`, `bookmarked`（ログインユーザーが保存済みかどうか）
+レスポンス（`ArticleResponse`）：`id`, `url`, `title`, `summary`, `tags`, `imageUrl`, `publishedAt`, `createdAt`, `bookmarked`（ログインユーザーが保存済みかどうか）
 
 ### ブックマークAPI
 | メソッド | パス | 認証 | 説明 |

@@ -58,6 +58,7 @@ public class Article {
     public String getSummary() { return summary; }
     public List<String> getTags() { return tags; }
     public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public OffsetDateTime getPublishedAt() { return publishedAt; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
 }
