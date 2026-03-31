@@ -9,6 +9,7 @@ public record ArticleResponse(
         String title,
         String summary,
         List<String> tags,
+        String imageUrl,
         OffsetDateTime publishedAt,
         OffsetDateTime createdAt,
         boolean bookmarked
@@ -20,6 +21,7 @@ public record ArticleResponse(
                 article.getTitle(),
                 article.getSummary(),
                 article.getTags(),
+                article.getImageUrl(),
                 article.getPublishedAt(),
                 article.getCreatedAt(),
                 bookmarked

@@ -2,6 +2,10 @@ package com.example.sdvnews.batch;
 
 import com.example.sdvnews.article.Article;
 import com.example.sdvnews.article.ArticleRepository;
+import com.rometools.modules.mediarss.MediaEntryModule;
+import com.rometools.modules.mediarss.types.MediaContent;
+import com.rometools.modules.mediarss.types.Thumbnail;
+import com.rometools.rome.feed.synd.SyndEnclosure;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.SyndFeedInput;
@@ -70,6 +74,7 @@ public class RssFetchService {
                         entry.getTitle() != null ? entry.getTitle().trim() : "(no title)",
                         null,        // summary: フェーズ2でGeminiが設定
                         List.of(),   // tags: フェーズ2でGeminiが設定
+                        resolveImageUrl(entry),
                         toOffsetDateTime(entry.getPublishedDate())
                 );
                 articleRepository.save(article);
@@ -78,6 +83,34 @@ public class RssFetchService {
         }
 
         return new FetchResult(saved, skipped);
+    }
+
+    private String resolveImageUrl(SyndEntry entry) {
+        // 1. media:thumbnail / media:content（多くの日本メディアはこれを使用）
+        MediaEntryModule media = (MediaEntryModule) entry.getModule(MediaEntryModule.URI);
+        if (media != null) {
+            if (media.getMetadata() != null && media.getMetadata().getThumbnail() != null
+                    && media.getMetadata().getThumbnail().length > 0) {
+                Thumbnail thumb = media.getMetadata().getThumbnail()[0];
+                if (thumb.getUrl() != null) return thumb.getUrl().toString();
+            }
+            if (media.getMediaContents() != null && media.getMediaContents().length > 0) {
+                for (MediaContent mc : media.getMediaContents()) {
+                    if (mc.getReference() != null && mc.getType() != null && mc.getType().startsWith("image")) {
+                        return mc.getReference().toString();
+                    }
+                }
+            }
+        }
+        // 2. enclosure（podcastや一部フィードが使用）
+        if (entry.getEnclosures() != null) {
+            for (SyndEnclosure enc : entry.getEnclosures()) {
+                if (enc.getType() != null && enc.getType().startsWith("image")) {
+                    return enc.getUrl();
+                }
+            }
+        }
+        return null;
     }
 
     private String resolveUrl(SyndEntry entry) {

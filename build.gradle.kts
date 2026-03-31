@@ -35,6 +35,7 @@ dependencies {
 
     // Rome (RSS Parser)
     implementation("com.rometools:rome:2.1.0")
+    implementation("com.rometools:rome-modules:2.1.0")
 
     // Configuration Processor
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")

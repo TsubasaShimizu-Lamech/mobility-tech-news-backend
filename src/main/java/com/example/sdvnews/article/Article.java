@@ -31,6 +31,9 @@ public class Article {
     @Column(name = "tags", columnDefinition = "text[]")
     private List<String> tags;
 
+    @Column(name = "image_url", length = 2048)
+    private String imageUrl;
+
     @Column(name = "published_at")
     private OffsetDateTime publishedAt;
 
@@ -39,11 +42,12 @@ public class Article {
 
     protected Article() {}
 
-    public Article(String url, String title, String summary, List<String> tags, OffsetDateTime publishedAt) {
+    public Article(String url, String title, String summary, List<String> tags, String imageUrl, OffsetDateTime publishedAt) {
         this.url = url;
         this.title = title;
         this.summary = summary;
         this.tags = tags;
+        this.imageUrl = imageUrl;
         this.publishedAt = publishedAt;
         this.createdAt = OffsetDateTime.now();
     }
@@ -53,6 +57,7 @@ public class Article {
     public String getTitle() { return title; }
     public String getSummary() { return summary; }
     public List<String> getTags() { return tags; }
+    public String getImageUrl() { return imageUrl; }
     public OffsetDateTime getPublishedAt() { return publishedAt; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
 }
